@@ -15,7 +15,7 @@ import { stripeWebhooks } from "./controllers/orderController.js";
 const app = express();
 const port = process.env.PORT || 4000;
 
-// Connect DB......
+// Connect DB
 await connectDB(); 
 
  const allowedOrigins = ['http://localhost:5173','http://localhost:5174']
