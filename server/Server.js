@@ -18,11 +18,14 @@ const port = process.env.PORT || 4000;
 // Connect DB..
 await connectDB(); 
 
- const allowedOrigins = ['http://localhost:5173','http://localhost:5174']
+//  const allowedOrigins = ['http://localhost:5173']
 
-// const allowedOrigins = ['https://e-commerce-zepto-r4ld.vercel.app','http://localhost:5173'];
-
+const allowedOrigins = ['https://quick-mart-psi.vercel.app','http://localhost:5173'];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+
+
+
 app.post('/stripe',express.raw({type:"application/json"}),stripeWebhooks)
 app.use(express.json());
 app.use(cookieParser());
