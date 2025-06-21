@@ -1,6 +1,3 @@
-
-
-
 import { createContext, use, useActionState, useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { dummyProducts } from "../assets/assets";
@@ -69,7 +66,7 @@ export const AppContextProvider = ({ children }) => {
     const fetchProducts = async () => {
         //    setProducts(dummyProducts)
         try {
-            const { data } = await axios.get('api/product/list')
+            const { data } = await axios.get('/api/product/list')
             if (data.success) {
                 setProducts(data.products)
             } else {

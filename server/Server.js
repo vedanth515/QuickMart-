@@ -9,24 +9,30 @@ import productRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import addressRouter from "./routes/addressRoute.js";
 import orderRouter from "./routes/OrderRoute.js";
-import './configs/cloudinary.js';  // ✅ Just import it — don't call or await
+import './configs/cloudinary.js';
 import { stripeWebhooks } from "./controllers/orderController.js";
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 // Connect DB..
-await connectDB(); 
+await connectDB();
 
-//  const allowedOrigins = ['http://localhost:5173']
+// ✅ GOOD CORS CONFIG — only this one
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://quick-mart-psi.vercel.app'   // your Vercel frontend URL
+];
 
-const allowedOrigins = ['https://quick-mart-psi.vercel.app','http://localhost:5173'];
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
+// Stripe Webhook
+app.post('/stripe', express.raw({ type: "application/json" }), stripeWebhooks);
 
-
-
-app.post('/stripe',express.raw({type:"application/json"}),stripeWebhooks)
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
@@ -39,10 +45,8 @@ app.use('/api/cart', cartRouter);
 app.use('/api/address', addressRouter);
 app.use('/api/order', orderRouter);
 
-
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
 
 export default app;
