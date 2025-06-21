@@ -18,10 +18,9 @@ const port = process.env.PORT || 4000;
 // Connect DB..
 await connectDB();
 
-// ✅ GOOD CORS CONFIG — only this one
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://quick-mart-psi.vercel.app'   // your Vercel frontend URL
+  'https://quick-mart-psi.vercel.app'   // Vercel URL
 ];
 
 app.use(cors({
@@ -29,12 +28,12 @@ app.use(cors({
   credentials: true
 }));
 
-// Stripe Webhook
-app.post('/stripe', express.raw({ type: "application/json" }), stripeWebhooks);
-
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+// Stripe Webhook
+app.post('/stripe', express.raw({ type: "application/json" }), stripeWebhooks);
 
 // Routes
 app.get('/', (req, res) => res.send("API is Working!"));
