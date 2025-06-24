@@ -7,6 +7,7 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
@@ -20,27 +21,49 @@ export const AppContextProvider = ({ children }) => {
     const [products, setProducts] = useState([])
     const [cartItems, setCartItems] = useState({})
     const [searchQuery, setSearchQuery] = useState({})
+    const [isUserLoaded, setIsUserLoaded] = useState(false);
 
+    // Fetch user Auth status , User Data and Cart items
 
+    // const fetchUser = async () => {
+    //     try {
+    //         const { data } = await axios.get('/api/user/is-auth');
+    //         if (data.success) {
+    //             setUser(data.user)
+    //             setCartItems(data.user.cartItems)
+    //         } else {
+    //             setUser(null)
+    //             setCartItems({})
+    //         }
 
-     // Fetch user Auth status , User Data and Cart items
+    //     } catch (error) {
+    //         console.log(error.message);
+
+    //     }
+    // }
+
 
     const fetchUser = async () => {
         try {
             const { data } = await axios.get('/api/user/is-auth');
             if (data.success) {
-                setUser(data.user)
-                setCartItems(data.user.cartItems)
+                setUser(data.user);
+                setCartItems(data.user.cartItems);
             } else {
-                setUser(null)
-                setCartItems({})
+                setUser(null);
+                setCartItems({});
             }
-
         } catch (error) {
-            console.log(error.message);
-            
+            console.log('fetchUser error:', error.message);
+            setUser(null);
+            setCartItems({});
+        } finally {
+            setIsUserLoaded(true);
         }
-    }
+    };
+
+
+
 
 
     // Fetch seller status
@@ -59,7 +82,7 @@ export const AppContextProvider = ({ children }) => {
     }
 
 
-   
+
 
     //Fetching All Products From Here
     const fetchProducts = async () => {
@@ -148,27 +171,43 @@ export const AppContextProvider = ({ children }) => {
     }, [])
 
     // Update Database Cart Items
+    // useEffect(() => {
+    //     const updateCart = async () => {
+    //         try {
+    //             const { data } = await axios.post('/api/cart/update', { cartItems })
+    //             if (!data.success) {
+    //                 toast.error(data.message)
+    //             }
+    //         } catch (error) {
+    //             toast.error(error.message)
+    //         }
+    //     }
+
+    //     if (user) {
+    //         updateCart()
+    //     }
+    // }, [cartItems])
+
     useEffect(() => {
         const updateCart = async () => {
             try {
-                const { data } = await axios.post('/api/cart/update', { cartItems })
+                const { data } = await axios.post('/api/cart/update', { cartItems });
                 if (!data.success) {
-                    toast.error(data.message)
+                    toast.error(data.message);
                 }
             } catch (error) {
-                toast.error(error.message)
+                toast.error(error.message);
             }
+        };
+
+        if (user && isUserLoaded) {
+            updateCart();
         }
-
-        if (user) {
-            updateCart()
-        }
-    }, [cartItems])
+    }, [cartItems, isUserLoaded]);
 
 
 
-
-    const value = { navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItems, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts,setCartItems };
+    const value = { navigate, user, setUser, isSeller, setIsSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItems, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems };
 
     return (
         <AppContext.Provider value={value}>
