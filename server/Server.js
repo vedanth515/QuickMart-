@@ -20,10 +20,12 @@ await connectDB();
 
 const allowedOrigins = [
   'http://localhost:5173',
+  // 'https://quickmart-1-dpx4.onrender.com'   // Render URL
   'https://quick-mart-psi.vercel.app'   // Vercel URL
 ];
 
 app.use(cors({
+
   origin: allowedOrigins,
   credentials: true
 }));

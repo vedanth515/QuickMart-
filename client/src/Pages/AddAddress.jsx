@@ -19,7 +19,6 @@ const InputField = ({ type, placeholder, name, handleChange, address }) => (
 
 const AddAddress = () => {
   const { axios, user, navigate } = useAppContext();
-
   const [address, setAddress] = useState({
     firstName: "",
     lastName: "",

@@ -7,9 +7,7 @@ const authUser = (req, res, next) => {
 
   try {
     const token = req.cookies.token;
-
     
-    // Debug logs for backend
     console.log("authUser middleware hit");
     console.log("Cookies:", req.cookies);
 
