@@ -1,25 +1,31 @@
+// middlewares/authSeller.js
 
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
+// Middleware to authenticate seller using cookie
 const authSeller = async (req, res, next) => {
-    const { sellerToken } = req.cookies;
+  try {
+    // Get token from cookies
+    const token = req.cookies.sellerToken;
 
-    if (!sellerToken) {
-        return res.json({ success: false, message: 'Not Authorized' });
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized: No token found" });
     }
 
-    try {
-        const tokenDecode = jwt.verify(sellerToken, process.env.JWT_SECRET);
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        if (tokenDecode.email === process.env.SELLER_EMAIL){
-           next();
-        } else {
-            return res.status(401).json({ success: false, message: 'Not Authorized' });
-        }
-
-    } catch (error) {
-        return res.status(401).json({ success: false, message: error.message });
+    // Check if email matches the predefined seller email
+    if (decoded.email === process.env.SELLER_EMAIL) {
+      next();
+    } else {
+      return res.status(401).json({ success: false, message: "Unauthorized: Invalid seller" });
     }
-}
+
+  } catch (error) {
+    console.error("authSeller error:", error.message);
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
+  }
+};
 
 export default authSeller;

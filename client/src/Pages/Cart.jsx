@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useAppContext } from "../Context/AppContext"
 import { assets, dummyAddress } from "../assets/assets"
 import toast from "react-hot-toast"
+import { useCookies } from 'react-cookie';
 
 const Cart = () => {
 
@@ -12,6 +13,7 @@ const Cart = () => {
     const [showAddress, setShowAddress] = useState(false)
     const [selectedAddress, setSelectedAddress] = useState(null)
     const [paymentOption, setPaymentOption] = useState("COD")
+    const [cookies] = useCookies(['token']);
 
     const getCart = () => {
         let tempArray = []
@@ -26,9 +28,15 @@ const Cart = () => {
 
     const getUserAddress = async () => {
         try {
-            const { data } = await axios.get('/api/address/get');
+            const token = cookies.token;
+            console.log(token, "get token");
+
+            const { data } = await axios.get('/api/address/get', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
             if (data.success) {
-                setAddresses(data.addresses); // ✅ use same key from backend
+                setAddresses(data.addresses);
                 if (data.addresses.length > 0) {
                     setSelectedAddress(data.addresses[0]);
                 }
@@ -42,62 +50,65 @@ const Cart = () => {
 
 
 
-
     const placeOrder = async () => {
         try {
             if (!selectedAddress) {
-                return toast.error("Please select an address")
+                return toast.error("Please select an address");
             }
 
-            //Place Order with COD
+            const token = cookies.token;
+            const orderPayload = {
+                items: cartArray.map(item => ({ product: item._id, quantity: item.quantity })),
+                address: selectedAddress._id
+            };
+
+            // Place Order with COD
             if (paymentOption === "COD") {
-                const { data } = await axios.post('/api/order/cod', {
-                    // userId: user._id,
-                    items: cartArray.map(item => ({ product: item._id, quantity: item.quantity })),
-                    address: selectedAddress._id
-                });
+                const { data } = await axios.post('/api/order/cod',
+                    orderPayload,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
                 if (data.success) {
-                    toast.success(data.message)
-                    setCartItems({})
-                    navigate('/my-orders')
+                    toast.success(data.message);
+                    setCartItems({});
+                    navigate('/my-orders');
                 } else {
-                    toast.error(data.message)
+                    toast.error(data.message);
                 }
 
-            }else{
+            } else {
                 // Place Order with Stripe
-                const { data } = await axios.post('/api/order/stripe', {
-                    // userId: user._id,
-                    items: cartArray.map(item => ({ product: item._id, quantity: item.quantity })),
-                    address: selectedAddress._id
-                });
+                const { data } = await axios.post('/api/order/stripe',
+                    orderPayload,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
 
-                if(data.success){
-                    window.location.replace(data.url)
-                }else{
-                    toast.error(data.message)
+                if (data.success) {
+                    window.location.replace(data.url);
+                } else {
+                    toast.error(data.message);
                 }
             }
 
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
-    }
+    };
 
     useEffect(() => {
         if (products.length > 0 && cartItems) {
-            getCart()
+            getCart();
         }
-    }, [products, cartItems])
-
-
+    }, [products, cartItems]);
 
     useEffect(() => {
         if (user) {
-            getUserAddress()
+            getUserAddress();
         }
-    }, [user])
+    }, [user]);
+
+
 
 
     return products.length > 0 && cartItems ? (

@@ -1,4 +1,3 @@
-
 // controllers/UserController.js
 
 import User from "../models/User.js";
@@ -25,16 +24,11 @@ export const register = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
+        // Return token in response (frontend will store it)
         return res.json({
             success: true,
-            user: { name: user.name, email: user.email }
+            user: { name: user.name, email: user.email },
+            token
         });
     } catch (error) {
         console.log(error.message);
@@ -63,19 +57,13 @@ export const login = async (req, res) => {
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-
         return res.status(200).json({
             success: true,
             user: {
                 name: user.name,
                 email: user.email,
             },
+            token
         });
     } catch (error) {
         console.error("Login error:", error.message);
@@ -86,7 +74,7 @@ export const login = async (req, res) => {
 // Check Auth
 export const isAuth = async (req, res) => {
     try {
-        const userId = req.id;
+        const userId = req.id; // This is set by verifyToken middleware
         const user = await User.findById(userId).select("-password");
 
         if (!user) {
@@ -103,12 +91,7 @@ export const isAuth = async (req, res) => {
 // Logout User
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        });
-
+        // No cookie to clear anymore - just return success
         return res.json({ success: true, message: "Logged Out Successfully" });
     } catch (error) {
         console.log(error.message);

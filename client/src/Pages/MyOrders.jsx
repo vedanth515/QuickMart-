@@ -1,31 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../Context/AppContext'
 import { dummyOrders } from '../assets/assets';
+import { useCookies } from 'react-cookie';
 
 const MyOrders = () => {
 
   const [myOrders, setMyOrders] = useState([])
+  const [cookies] = useCookies(['token']);
   const { currency, axios, user } = useAppContext();
-  
+
 
   const fetchMyOrders = async () => {
     try {
-      const { data } = await axios.get('/api/order/user')
+      const token = cookies.token;
+      const { data } = await axios.get('/api/order/user', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
       console.log("Received from backend: ", data);
+
       if (data.success) {
-        setMyOrders(data.orders)
+        setMyOrders(data.orders);
       }
     } catch (error) {
       console.log(error);
-
     }
-  }
+  };
 
   useEffect(() => {
     if (user) {
-      fetchMyOrders()
+      fetchMyOrders();
     }
-  }, [user])
+  }, [user]);
 
   return (
     <div className='mt-16 pb-16'>
