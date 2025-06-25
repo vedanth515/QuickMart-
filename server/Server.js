@@ -20,7 +20,7 @@ await connectDB();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  // 'https://quickmart-clw9.onrender.com',
+  'https://quickmart-clw9.onrender.com',
 //   'https://quick-mart-psi.vercel.app'   // Vercel URL
 ];
 
