@@ -35,7 +35,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-// Stripe Webhook
+// Stripe Webhook...
 app.post('/stripe', express.raw({ type: "application/json" }), stripeWebhooks);
 
 // Routes
